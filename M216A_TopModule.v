@@ -70,9 +70,33 @@ module M216A_TopModule(
 wire [4:0] Width_In, Height_In;
 wire Clk_In, Rst_In;
 
+
 //Add your code below 
 //Make sure to Register the outputs using the Register modules given above
+reg Occupied_Width_values = Occupied_Width
+reg Strip_y
+reg Strip_y_plus_1
 
+case (Height_In)
+    4'd4:
+        begin
+            Strip_y = Occuped_Width - Width_In
+            Strip_y_plus_1 = 
+        end
+    4'd5:
+    4'd6:
+    4'd7:
+    4'd8:
+    4'd9:
+    4'd10:
+    4'd11:
+    4'd12:
+    4'd13:
+    4'd14:
+    4'd15:
+    4'd16:
+
+endcase
 
 
   
