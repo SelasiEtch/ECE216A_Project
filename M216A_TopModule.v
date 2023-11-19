@@ -73,9 +73,16 @@ wire clk_i, rst_i;
 //Add your code below 
 //Make sure to Register the outputs using the Register modules given above
 
+reg [3:0] strike;
+assign strike_o = strike;
+reg [7:0] index_x, index_y;
+assign index_x_o = index_x;
+assign index_y_o = index_y;
 reg [7:0] Occupied_Width_values [0:12];
 reg [7:0] Strip_y_occupancy = 0;
 reg [7:0] Strip_y_plus_1_occupancy = 0;
+reg [7:0] Strip_y_plus_2_occupancy = 0;
+
 reg [7:0] x_4=0;
 reg [7:0] y_4=12;
 reg [7:0] x_5=0;
@@ -126,165 +133,445 @@ always @* begin
             begin
                 Strip_y_occupancy = Occupied_Width_values[1] - width_i;
                 Strip_y_plus_1_occupancy = Occupied_Width_values[3] - width_i;
-                // Both strips are not filled
-                if (Strip_y_occupancy > 0 && Strip_y_plus_1_occupancy > 0) begin
-                    if (Strip_y_occupancy > Strip_y_plus_1_occupancy) begin
-                        Occupied_Width_values[1] = Strip_y_occupancy;
-			x_4 = x_4 + width_i;
-			index_x_o <= x_4;
-			index_y_o <= y_4;
-                    end
-                    else begin
-                        Occupied_Width_values[3] = Strip_y_plus_1_occupancy;
-			x_5 = x_5 + width_i;
-			index_x_o = x_5;
-			index_x_o = y_5;
-                    end
-                end
-                // Strip y i not filled
-                else if (Strip_y_occupancy > 0) begin
+
+                if (Strip_y_occupancy > Strip_y_plus_1_occupancy) begin
                     Occupied_Width_values[1] = Strip_y_occupancy;
-		    //x_4 = x_4 + Width_In;
-		    //Output_x_Out = x_4;
-		    //Output_y_Out = y_4;
+		    x_4 = x_4 + width_i;
+		    index_x = x_4;
+		    index_y = y_4;
                 end
-                // Strip y+1 is not filled
-                else if (Strip_y_plus_1_occupancy > 0) begin
+                else if(Strip_y_plus_1_occupancy > Strip_y_occupancy) begin
                     Occupied_Width_values[3] = Strip_y_plus_1_occupancy;
-		    //x_5 = x_5 + Width_In;
-		    //Output_x_Out = x_5;
-		    //Output_y_Out = y_5;
+		    x_5 = x_5 + width_i;
+		    index_x = x_5;
+		    index_y = y_5;
                 end
 		// Strip y+1 and Strip y have equal occupancies. Strip y has priority
 		else if (Strip_y_occupancy == Strip_y_plus_1_occupancy) begin
 		    Occupied_Width_values[1] = Strip_y_occupancy;
-		    //x_4 = x_4 + Width_In;
-		    //Output_x_Out = x_4;
-		    //Output_y_Out = y_4;
+		    x_4 = x_4 + width_i;
+		    index_x = x_4;
+		    index_y = y_4;
 		end
                 // Both Strips are filled
                 else begin
-                    //Strike = Strike + 1;
-                    //Output_x_Out = 128;
-                    //utput_y_Out = 128;
+                    strike = strike + 1;
+                    index_x = 128;
+                    index_y = 128;
                 end
             end
-/*
+
         4'd5:
             begin
-                Strip_y_occupancy = Occupied_Width_values[3] - Width_In;
-                Strip_y_plus_1_occupancy = Occupied_Width_values[5] - Width_In;
+                Strip_y_occupancy = Occupied_Width_values[3] - width_i;
+                Strip_y_plus_1_occupancy = Occupied_Width_values[5] - width_i;
                 // Both strips are not filled
-                if (Strip_y_occupancy > 0 && Strip_y_plus_1_occupancy > 0) begin
-                    if (Strip_y_occupancy > Strip_y_plus_1_occupancy) begin
-                        Occupied_Width_values[3] = Strip_y_occupancy;
-			x_5 = x_5 + Width_In;
-			Output_x_Out = x_5;
-			Output_y_Out = y_5;
-                    end
-                    else begin
-                        Occupied_Width_values[5] = Strip_y_plus_1_occupancy;
-			x_6 = x_6 + Width_In;
-			Output_x_Out = x_6;
-			Output_y_Out = y_6;
-                    end
-                end
-                // Strip y i not filled
-                else if (Strip_y_occupancy > 0) begin
+                if (Strip_y_occupancy > Strip_y_plus_1_occupancy) begin
                     Occupied_Width_values[3] = Strip_y_occupancy;
-		    x_5 = x_5 + Width_In;
-		    Output_x_Out = x_5;
-		    Output_y_Out = y_5;
+		    x_5 = x_5 + width_i;
+		    index_x = x_5;
+		    index_y = y_5;
                 end
-                // Strip y+1 is not filled
-                else if (Strip_y_plus_1_occupancy > 0) begin
+                else if(Strip_y_plus_1_occupancy > Strip_y_occupancy) begin
                     Occupied_Width_values[5] = Strip_y_plus_1_occupancy;
-		    x_6 = x_6 + Width_In;
-		    Output_x_Out = x_6;
-		    Output_y_Out = y_6;
+		    x_6 = x_6 + width_i;
+		    index_x = x_6;
+		    index_y = y_6;
                 end
+
 		// Strip y+1 and Strip y have equal occupancies. Strip y has priority
 		else if (Strip_y_occupancy == Strip_y_plus_1_occupancy) begin
 		    Occupied_Width_values[3] = Strip_y_occupancy;
-		    x_5 = x_5 + Width_In;
-		    Output_x_Out = x_5;
-		    Output_y_Out = y_5;
+		    x_5 = x_5 + width_i;
+		    index_x = x_6;
+		    index_y = y_6;
 		end
                 // Both Strips are filled
                 else begin
-                    Strike = Strike + 1;
-                    Output_x_Out = 128;
-                    Output_y_Out = 128;
+                    strike = strike + 1;
+                    index_x = 128;
+                    index_y = 128;
                 end
             end
         4'd6:
             begin
-                Strip_y_occupancy = Occupied_Width_values[5] - Width_In;
-                Strip_y_plus_1_occupancy = Occupied_Width_values[7] - Width_In;
-                // Both strips are not filled
-                if (Strip_y_occupancy > 0 && Strip_y_plus_1_occupancy > 0) begin
-                    if (Strip_y_occupancy > Strip_y_plus_1_occupancy) begin
-                        Occupied_Width_values[5] = Strip_y_occupancy;
-			x_6 = x_6 + Width_In;
-			Output_x_Out = x_6;
-			Output_y_Out = y_6;
-                    end
-                    else begin
-                        Occupied_Width_values[7] = Strip_y_plus_1_occupancy;
-			x_7 = x_7 + Width_In;
-			Output_x_Out = x_7;
-			Output_y_Out = y_7;
-                    end
-                end
-                // Strip y i not filled
-                else if (Strip_y_occupancy > 0) begin
+                Strip_y_occupancy = Occupied_Width_values[5] - width_i;
+                Strip_y_plus_1_occupancy = Occupied_Width_values[7] - width_i;
+                if (Strip_y_occupancy > Strip_y_plus_1_occupancy) begin
                     Occupied_Width_values[5] = Strip_y_occupancy;
-		    x_6 = x_6 + Width_In;
-		    Output_x_Out = x_6;
-		    Output_y_Out = y_6;
+		    x_6 = x_6 + width_i;
+		    index_x = x_6;
+		    index_y = y_6;
                 end
-                // Strip y+1 is not filled
-                else if (Strip_y_plus_1_occupancy > 0) begin
+
+                else if(Strip_y_plus_1_occupancy > Strip_y_occupancy) begin
                     Occupied_Width_values[7] = Strip_y_plus_1_occupancy;
-		    x_7 = x_7 + Width_In;
-		    Output_x_Out = x_7;
-		    Output_y_Out = y_7;
+		    x_7 = x_7 + width_i;
+		    index_x = x_7;
+		    index_y = y_7;
                 end
+
 		// Strip y+1 and Strip y have equal occupancies. Strip y has priority
 		else if (Strip_y_occupancy == Strip_y_plus_1_occupancy) begin
 		    Occupied_Width_values[5] = Strip_y_occupancy;
-		    x_6 = x_6 + Width_In;
-		    Output_x_Out = x_6;
-		    Output_y_Out = y_6;
+		    x_6 = x_6 + width_i;
+		    index_x = x_6;
+		    index_y = y_6;
 		end
                 // Both Strips are filled
                 else begin
-                    Strike = Strike + 1;
-                    Output_x_Out = 128;
-                    Output_y_Out = 128;
+                    strike = strike + 1;
+                    index_x = 128;
+                    index_y = 128;
                 end
             end
         4'd7:
-		Output_y_Out = 128;
+            begin
+                Strip_y_occupancy = Occupied_Width_values[7] - width_i;
+                Strip_y_plus_1_occupancy = Occupied_Width_values[8] - width_i;
+		Strip_y_plus_2_occupancy = Occupied_Width_values[9] - width_i;
+                // Both strips are not filled
+                if ((Strip_y_occupancy > Strip_y_plus_1_occupancy) && (Strip_y_occupancy > Strip_y_plus_2_occupancy)) begin
+                    Occupied_Width_values[7] = Strip_y_occupancy;
+		    x_7 = x_7 + width_i;
+		    index_x = x_7;
+		    index_y = y_7;
+                end
+		else if ((Strip_y_plus_1_occupancy > Strip_y_occupancy) && (Strip_y_plus_1_occupancy > Strip_y_plus_2_occupancy)) begin
+                    Occupied_Width_values[8] = Strip_y_plus_1_occupancy;
+		    x_8 = x_8 + width_i;
+		    index_x = x_8;
+		    index_y = y_8;
+		end
+		else if ((Strip_y_plus_2_occupancy > Strip_y_occupancy) && (Strip_y_plus_2_occupancy > Strip_y_plus_1_occupancy)) begin
+                    Occupied_Width_values[9] = Strip_y_plus_2_occupancy;
+		    x_9 = x_9 + width_i;
+		    index_x = x_9;
+		    index_y = y_9;
+                end
+
+		// Strip y+1 and Strip y have equal occupancies. Strip y has priority
+		else if (Strip_y_occupancy == Strip_y_plus_1_occupancy) begin
+		    Occupied_Width_values[7] = Strip_y_occupancy;
+		    x_7 = x_7 + width_i;
+		    index_x = x_7;
+		    index_y = y_7;
+		end
+                // Both Strips are filled
+                else begin
+                    strike = strike + 1;
+                    index_x = 128;
+                    index_y = 128;
+                end
+            end
         4'd8:
-		Output_y_Out = 128;
+            begin
+                Strip_y_occupancy = Occupied_Width_values[6] - width_i;
+                Strip_y_plus_1_occupancy = Occupied_Width_values[8] - width_i;
+		Strip_y_plus_2_occupancy = Occupied_Width_values[9] - width_i;
+                // Both strips are not filled
+                if ((Strip_y_occupancy > Strip_y_plus_1_occupancy) && (Strip_y_occupancy > Strip_y_plus_2_occupancy)) begin
+                    Occupied_Width_values[6] = Strip_y_occupancy;
+		    x_8 = x_8 + width_i;
+		    index_x = x_8;
+		    index_y = y_8;
+                end
+		else if ((Strip_y_plus_1_occupancy > Strip_y_occupancy) && (Strip_y_plus_1_occupancy > Strip_y_plus_2_occupancy)) begin
+                    Occupied_Width_values[8] = Strip_y_plus_1_occupancy;
+		    x_9 = x_9 + width_i;
+		    index_x = x_9;
+		    index_y = y_9;
+		end
+		else if ((Strip_y_plus_2_occupancy > Strip_y_occupancy) && (Strip_y_plus_2_occupancy > Strip_y_plus_1_occupancy)) begin
+                    Occupied_Width_values[9] = Strip_y_plus_2_occupancy;
+		    x_10 = x_10 + width_i;
+		    index_x = x_10;
+		    index_y = y_10;
+                end
+
+		// Strip y+1 and Strip y have equal occupancies. Strip y has priority
+		else if (Strip_y_occupancy == Strip_y_plus_1_occupancy) begin
+		    Occupied_Width_values[6] = Strip_y_occupancy;
+		    x_8 = x_8 + width_i;
+		    index_x = x_8;
+		    index_y = y_8;
+		end
+                // Both Strips are filled
+                else begin
+                    strike = strike + 1;
+                    index_x = 128;
+                    index_y = 128;
+                end
+            end
         4'd9:
-		Output_y_Out = 128;
+	    begin
+                Strip_y_occupancy = Occupied_Width_values[4] - width_i;
+                Strip_y_plus_1_occupancy = Occupied_Width_values[6] - width_i;
+                if (Strip_y_occupancy > Strip_y_plus_1_occupancy) begin
+                    Occupied_Width_values[4] = Strip_y_occupancy;
+		    x_9 = x_9 + width_i;
+		    index_x = x_9;
+		    index_y = y_9;
+                end
+
+                else if(Strip_y_plus_1_occupancy > Strip_y_occupancy) begin
+                    Occupied_Width_values[6] = Strip_y_plus_1_occupancy;
+		    x_10 = x_10 + width_i;
+		    index_x = x_10;
+		    index_y = y_10;
+                end
+
+		// Strip y+1 and Strip y have equal occupancies. Strip y has priority
+		else if (Strip_y_occupancy == Strip_y_plus_1_occupancy) begin
+		    Occupied_Width_values[4] = Strip_y_occupancy;
+		    x_9 = x_9 + width_i;
+		    index_x = x_9;
+		    index_y = y_9;
+		end
+                // Both Strips are filled
+                else begin
+                    strike = strike + 1;
+                    index_x = 128;
+                    index_y = 128;
+                end
+            end
         4'd10:
-		Output_y_Out = 128;
+	    begin
+                Strip_y_occupancy = Occupied_Width_values[2] - width_i;
+                Strip_y_plus_1_occupancy = Occupied_Width_values[4] - width_i;
+                if (Strip_y_occupancy > Strip_y_plus_1_occupancy) begin
+                    Occupied_Width_values[2] = Strip_y_occupancy;
+		    x_10 = x_10 + width_i;
+		    index_x = x_10;
+		    index_y = y_10;
+                end
+
+                else if(Strip_y_plus_1_occupancy > Strip_y_occupancy) begin
+                    Occupied_Width_values[4] = Strip_y_plus_1_occupancy;
+		    x_11 = x_11 + width_i;
+		    index_x = x_11;
+		    index_y = y_11;
+                end
+
+		// Strip y+1 and Strip y have equal occupancies. Strip y has priority
+		else if (Strip_y_occupancy == Strip_y_plus_1_occupancy) begin
+		    Occupied_Width_values[2] = Strip_y_occupancy;
+		    x_10 = x_10 + width_i;
+		    index_x = x_10;
+		    index_y = y_10;
+		end
+                // Both Strips are filled
+                else begin
+                    strike = strike + 1;
+                    index_x = 128;
+                    index_y = 128;
+                end
+            end
         4'd11:
-		Output_y_Out = 128;
+	    begin
+                Strip_y_occupancy = Occupied_Width_values[0] - width_i;
+                Strip_y_plus_1_occupancy = Occupied_Width_values[2] - width_i;
+                if (Strip_y_occupancy > Strip_y_plus_1_occupancy) begin
+                    Occupied_Width_values[0] = Strip_y_occupancy;
+		    x_11 = x_11 + width_i;
+		    index_x = x_11;
+		    index_y = y_11;
+                end
+
+                else if(Strip_y_plus_1_occupancy > Strip_y_occupancy) begin
+                    Occupied_Width_values[2] = Strip_y_plus_1_occupancy;
+		    x_12 = x_12 + width_i;
+		    index_x = x_12;
+		    index_y = y_12;
+                end
+
+		// Strip y+1 and Strip y have equal occupancies. Strip y has priority
+		else if (Strip_y_occupancy == Strip_y_plus_1_occupancy) begin
+		    Occupied_Width_values[0] = Strip_y_occupancy;
+		    x_11 = x_11 + width_i;
+		    index_x = x_11;
+		    index_y = y_11;
+		end
+                // Both Strips are filled
+                else begin
+                    strike = strike + 1;
+                    index_x = 128;
+                    index_y = 128;
+                end
+            end
         4'd12:
-		Output_y_Out = 128;
+	    begin
+                Strip_y_occupancy = Occupied_Width_values[0] - width_i;
+		if (Strip_y_occupancy > 0) begin
+                    Occupied_Width_values[0] = Strip_y_occupancy;
+		    x_12 = x_12 + width_i;
+		    index_x = x_12;
+		    index_y = y_12;
+                end
+                // Both Strips are filled
+                else begin
+                    strike = strike + 1;
+                    index_x = 128;
+                    index_y = 128;
+                end
+            end
         4'd13:
-		Output_y_Out = 128;
+            begin
+                Strip_y_occupancy = Occupied_Width_values[10] - width_i;
+                Strip_y_plus_1_occupancy = Occupied_Width_values[11] - width_i;
+		Strip_y_plus_2_occupancy = Occupied_Width_values[12] - width_i;
+                // Both strips are not filled
+                if ((Strip_y_occupancy > Strip_y_plus_1_occupancy) && (Strip_y_occupancy > Strip_y_plus_2_occupancy)) begin
+                    Occupied_Width_values[10] = Strip_y_occupancy;
+		    x_13 = x_13 + width_i;
+		    index_x = x_13;
+		    index_y = y_13;
+                end
+		else if ((Strip_y_plus_1_occupancy > Strip_y_occupancy) && (Strip_y_plus_1_occupancy > Strip_y_plus_2_occupancy)) begin
+                    Occupied_Width_values[11] = Strip_y_plus_1_occupancy;
+		    x_14 = x_14 + width_i;
+		    index_x = x_14;
+		    index_y = y_14;
+		end
+		else if ((Strip_y_plus_2_occupancy > Strip_y_occupancy) && (Strip_y_plus_2_occupancy > Strip_y_plus_1_occupancy)) begin
+                    Occupied_Width_values[12] = Strip_y_plus_2_occupancy;
+		    x_15 = x_15 + width_i;
+		    index_x = x_15;
+		    index_y = y_15;
+                end
+
+		// Strip y+1 and Strip y have equal occupancies. Strip y has priority
+		else if (Strip_y_occupancy == Strip_y_plus_1_occupancy) begin
+		    Occupied_Width_values[10] = Strip_y_occupancy;
+		    x_13 = x_13 + width_i;
+		    index_x = x_13;
+		    index_y = y_13;
+		end
+                // Both Strips are filled
+                else begin
+                    strike = strike + 1;
+                    index_x = 128;
+                    index_y = 128;
+                end
+            end
         4'd14:
-		Output_y_Out = 128;
+	    begin
+                Strip_y_occupancy = Occupied_Width_values[10] - width_i;
+                Strip_y_plus_1_occupancy = Occupied_Width_values[11] - width_i;
+		Strip_y_plus_2_occupancy = Occupied_Width_values[12] - width_i;
+                // Both strips are not filled
+                if ((Strip_y_occupancy > Strip_y_plus_1_occupancy) && (Strip_y_occupancy > Strip_y_plus_2_occupancy)) begin
+                    Occupied_Width_values[10] = Strip_y_occupancy;
+		    x_13 = x_13 + width_i;
+		    index_x = x_13;
+		    index_y = y_13;
+                end
+		else if ((Strip_y_plus_1_occupancy > Strip_y_occupancy) && (Strip_y_plus_1_occupancy > Strip_y_plus_2_occupancy)) begin
+                    Occupied_Width_values[11] = Strip_y_plus_1_occupancy;
+		    x_14 = x_14 + width_i;
+		    index_x = x_14;
+		    index_y = y_14;
+		end
+		else if ((Strip_y_plus_2_occupancy > Strip_y_occupancy) && (Strip_y_plus_2_occupancy > Strip_y_plus_1_occupancy)) begin
+                    Occupied_Width_values[12] = Strip_y_plus_2_occupancy;
+		    x_15 = x_15 + width_i;
+		    index_x = x_15;
+		    index_y = y_15;
+                end
+
+		// Strip y+1 and Strip y have equal occupancies. Strip y has priority
+		else if (Strip_y_occupancy == Strip_y_plus_1_occupancy) begin
+		    Occupied_Width_values[10] = Strip_y_occupancy;
+		    x_13 = x_13 + width_i;
+		    index_x = x_13;
+		    index_y = y_13;
+		end
+                // Both Strips are filled
+                else begin
+                    strike = strike + 1;
+                    index_x = 128;
+                    index_y = 128;
+                end
+            end
         4'd15:
-		Output_y_Out = 128;
+	    begin
+                Strip_y_occupancy = Occupied_Width_values[10] - width_i;
+                Strip_y_plus_1_occupancy = Occupied_Width_values[11] - width_i;
+		Strip_y_plus_2_occupancy = Occupied_Width_values[12] - width_i;
+                // Both strips are not filled
+                if ((Strip_y_occupancy > Strip_y_plus_1_occupancy) && (Strip_y_occupancy > Strip_y_plus_2_occupancy)) begin
+                    Occupied_Width_values[10] = Strip_y_occupancy;
+		    x_13 = x_13 + width_i;
+		    index_x = x_13;
+		    index_y = y_13;
+                end
+		else if ((Strip_y_plus_1_occupancy > Strip_y_occupancy) && (Strip_y_plus_1_occupancy > Strip_y_plus_2_occupancy)) begin
+                    Occupied_Width_values[11] = Strip_y_plus_1_occupancy;
+		    x_14 = x_14 + width_i;
+		    index_x = x_14;
+		    index_y = y_14;
+		end
+		else if ((Strip_y_plus_2_occupancy > Strip_y_occupancy) && (Strip_y_plus_2_occupancy > Strip_y_plus_1_occupancy)) begin
+                    Occupied_Width_values[12] = Strip_y_plus_2_occupancy;
+		    x_15 = x_15 + width_i;
+		    index_x = x_15;
+		    index_y = y_15;
+                end
+
+		// Strip y+1 and Strip y have equal occupancies. Strip y has priority
+		else if (Strip_y_occupancy == Strip_y_plus_1_occupancy) begin
+		    Occupied_Width_values[10] = Strip_y_occupancy;
+		    x_13 = x_13 + width_i;
+		    index_x = x_13;
+		    index_y = y_13;
+		end
+                // Both Strips are filled
+                else begin
+                    strike = strike + 1;
+                    index_x = 128;
+                    index_y = 128;
+                end
+            end
         4'd16:
-		Output_y_Out = 128;
-*/
+	    begin
+                Strip_y_occupancy = Occupied_Width_values[10] - width_i;
+                Strip_y_plus_1_occupancy = Occupied_Width_values[11] - width_i;
+		Strip_y_plus_2_occupancy = Occupied_Width_values[12] - width_i;
+                // Both strips are not filled
+                if ((Strip_y_occupancy > Strip_y_plus_1_occupancy) && (Strip_y_occupancy > Strip_y_plus_2_occupancy)) begin
+                    Occupied_Width_values[10] = Strip_y_occupancy;
+		    x_13 = x_13 + width_i;
+		    index_x = x_13;
+		    index_y = y_13;
+                end
+		else if ((Strip_y_plus_1_occupancy > Strip_y_occupancy) && (Strip_y_plus_1_occupancy > Strip_y_plus_2_occupancy)) begin
+                    Occupied_Width_values[11] = Strip_y_plus_1_occupancy;
+		    x_14 = x_14 + width_i;
+		    index_x = x_14;
+		    index_y = y_14;
+		end
+		else if ((Strip_y_plus_2_occupancy > Strip_y_occupancy) && (Strip_y_plus_2_occupancy > Strip_y_plus_1_occupancy)) begin
+                    Occupied_Width_values[12] = Strip_y_plus_2_occupancy;
+		    x_15 = x_15 + width_i;
+		    index_x = x_15;
+		    index_y = y_15;
+                end
+
+		// Strip y+1 and Strip y have equal occupancies. Strip y has priority
+		else if (Strip_y_occupancy == Strip_y_plus_1_occupancy) begin
+		    Occupied_Width_values[10] = Strip_y_occupancy;
+		    x_13 = x_13 + width_i;
+		    index_x = x_13;
+		    index_y = y_13;
+		end
+                // Both Strips are filled
+                else begin
+                    strike = strike + 1;
+                    index_x = 128;
+                    index_y = 128;
+                end
+            end
+
     endcase
 end
 
