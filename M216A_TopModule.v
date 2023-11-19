@@ -1,4 +1,5 @@
 `timescale 1ns / 100ps
+//Updated
 
 //Do NOT Modify This
 module P1_Reg_8_bit (DataIn, DataOut, rst, clk);
