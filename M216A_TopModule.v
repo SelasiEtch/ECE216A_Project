@@ -73,7 +73,8 @@ wire clk_i, rst_i;
 
 //Add your code below 
 //Make sure to Register the outputs using the Register modules given above
-
+reg [1:0] clk_counter;
+reg clk_div_4;
 reg [3:0] strike;
 assign strike_o = strike;
 reg [7:0] index_x, index_y;
@@ -112,7 +113,17 @@ reg [7:0] x_16=0;
 reg [7:0] y_16=0; //
 
 integer i;
-always @ (posedge clk_i or posedge rst_i) begin
+
+// Dividing Input Clock by 4 (operations for placement happen every 4 cycles of the input clock)
+always @ (posedge clk_i) begin
+    clk_counter <= clk_counter + 1;
+    if (clk_counter == 2'b11) begin
+        clk_div_4 <= ~ clk_div_4;
+        clk_counter <= 2'b00;
+    end
+end
+
+always @ (posedge clk_div_4 or posedge rst_i) begin
     // Reset Occupied Width Array
     if (rst_i) begin
         for (i = 0; i < 13; i = i+1) begin
