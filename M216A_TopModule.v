@@ -142,7 +142,7 @@ always @ (posedge clk_div_4 or posedge rst_i) begin
     // Reset Occupied Width Array
     if (rst_i) begin
         for (i = 0; i < 13; i = i+1) begin
-            Occupied_Width_values[i] <= 8'b00000000;
+		Occupied_Width_values[i] <= 8'd128;
         end
     end
     // On positive edge of Clock, Occupied width array is updated
