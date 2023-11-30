@@ -365,9 +365,6 @@ always @ (posedge clk_div_4) begin
             end
 
 	end
-	height_int2 = height_int;
-	width_int2 = width_int;
-
     end
 
 endmodule
