@@ -109,9 +109,9 @@ reg [7:0] Strip10_X = 0;
 reg [7:0] Strip11_X = 0;
 reg [7:0] Strip12_X = 0;
 
-reg [4:0] height_int = 4'b0000;
+wire [4:0] height_int = 4'b0000;
 reg [4:0] height_int2 = 4'b0000;
-reg [4:0] width_int = 4'b0000;
+wire [4:0] width_int = 4'b0000;
 reg [4:0] width_int2 = 4'b0000;
 
 
@@ -121,7 +121,7 @@ reg [4:0] Strip_index;
 
 
 // Dividing Input Clock by 4 (operations for placement happen every 4 cycles of the input clock)
-
+/*
 always @ (posedge clk_i) begin
     height_int <= height_i;
     width_int <= width_i;
@@ -131,33 +131,52 @@ always @ (posedge clk_i) begin
         clk_counter <= 2'b00;
     end
 end
+*/
+
+always @(posedge clk_i) begin
+	clk_div_2 = ~clk_div_2;
+end
+
+always @(posedge clk_div_2) begin
+	clk_div_4 = ~clk_div_4;
+end
+
+always@(posedge clk_div_4) begin
+	height_int2 <=  height_i;
+	width_int2 <= width_i;
+end
 
 
-P1_Reg_5_bit Height_Reg(.DataIn(height_int), .DataOut(height_i), .rst(rst_i), .clk(clk_i));				
-P1_Reg_5_bit Width_Reg(.DataIn(width_int), .DataOut(width_i), .rst(rst_i), .clk(clk_i));				
-P1_Reg_4_bit Strike_Reg(.DataIn(strike), .DataOut(strike_o), .rst(rst_i), .clk(clk_i));			
-P1_Reg_8_bit Index_X_Reg(.DataIn(index_x), .DataOut(index_x_o), .rst(rst_i), .clk(clk_i));			
-P1_Reg_8_bit Index_Y_Reg(.DataIn(index_y), .DataOut(index_y_o), .rst(rst_i), .clk(clk_i));			
-P1_Reg_8_bit Strip1_Reg(.DataIn(Occupied_Width_values[0]), .DataOut(Occupied_Width[0]), .rst(rst_i), .clk(clk_i));	
-P1_Reg_8_bit Strip2_Reg(.DataIn(Occupied_Width_values[1]), .DataOut(Occupied_Width[1]), .rst(rst_i), .clk(clk_i));	
-P1_Reg_8_bit Strip3_Reg(.DataIn(Occupied_Width_values[2]), .DataOut(Occupied_Width[2]), .rst(rst_i), .clk(clk_i));	
-P1_Reg_8_bit Strip4_Reg(.DataIn(Occupied_Width_values[3]), .DataOut(Occupied_Width[3]), .rst(rst_i), .clk(clk_i));	
-P1_Reg_8_bit Strip5_Reg(.DataIn(Occupied_Width_values[4]), .DataOut(Occupied_Width[4]), .rst(rst_i), .clk(clk_i));	
-P1_Reg_8_bit Strip6_Reg(.DataIn(Occupied_Width_values[5]), .DataOut(Occupied_Width[5]), .rst(rst_i), .clk(clk_i));	
-P1_Reg_8_bit Strip7_Reg(.DataIn(Occupied_Width_values[6]), .DataOut(Occupied_Width[6]), .rst(rst_i), .clk(clk_i));	
-P1_Reg_8_bit Strip8_Reg(.DataIn(Occupied_Width_values[7]), .DataOut(Occupied_Width[7]), .rst(rst_i), .clk(clk_i));	
-P1_Reg_8_bit Strip9_Reg(.DataIn(Occupied_Width_values[8]), .DataOut(Occupied_Width[8]), .rst(rst_i), .clk(clk_i));	
-P1_Reg_8_bit Strip10_Reg(.DataIn(Occupied_Width_values[9]), .DataOut(Occupied_Width[9]), .rst(rst_i), .clk(clk_i));	
-P1_Reg_8_bit Strip11_Reg(.DataIn(Occupied_Width_values[10]), .DataOut(Occupied_Width[10]), .rst(rst_i), .clk(clk_i));	
-P1_Reg_8_bit Strip12_Reg(.DataIn(Occupied_Width_values[11]), .DataOut(Occupied_Width[11]), .rst(rst_i), .clk(clk_i));	
-P1_Reg_8_bit Strip13_Reg(.DataIn(Occupied_Width_values[12]), .DataOut(Occupied_Width[12]), .rst(rst_i), .clk(clk_i));	
+initial begin
+    strike = 4'b0000;
+end
+
+
+    P1_Reg_5_bit Height_Reg(.DataIn(height_i), .DataOut(height_int), .rst(rst_i), .clk(clk_i));				
+    P1_Reg_5_bit Width_Reg(.DataIn(width_i), .DataOut(width_int), .rst(rst_i), .clk(clk_i));				
+    P1_Reg_4_bit Strike_Reg(.DataIn(strike), .DataOut(strike_o), .rst(rst_i), .clk(clk_i));			
+    P1_Reg_8_bit Index_X_Reg(.DataIn(index_x), .DataOut(index_x_o), .rst(rst_i), .clk(clk_i));			
+    P1_Reg_8_bit Index_Y_Reg(.DataIn(index_y), .DataOut(index_y_o), .rst(rst_i), .clk(clk_i));			
+    P1_Reg_8_bit Strip1_Reg(.DataIn(Occupied_Width_values[0]), .DataOut(Occupied_Width[0]), .rst(rst_i), .clk(clk_i));	
+    P1_Reg_8_bit Strip2_Reg(.DataIn(Occupied_Width_values[1]), .DataOut(Occupied_Width[1]), .rst(rst_i), .clk(clk_i));	
+    P1_Reg_8_bit Strip3_Reg(.DataIn(Occupied_Width_values[2]), .DataOut(Occupied_Width[2]), .rst(rst_i), .clk(clk_i));	
+    P1_Reg_8_bit Strip4_Reg(.DataIn(Occupied_Width_values[3]), .DataOut(Occupied_Width[3]), .rst(rst_i), .clk(clk_i));	
+    P1_Reg_8_bit Strip5_Reg(.DataIn(Occupied_Width_values[4]), .DataOut(Occupied_Width[4]), .rst(rst_i), .clk(clk_i));	
+    P1_Reg_8_bit Strip6_Reg(.DataIn(Occupied_Width_values[5]), .DataOut(Occupied_Width[5]), .rst(rst_i), .clk(clk_i));	
+    P1_Reg_8_bit Strip7_Reg(.DataIn(Occupied_Width_values[6]), .DataOut(Occupied_Width[6]), .rst(rst_i), .clk(clk_i));	
+    P1_Reg_8_bit Strip8_Reg(.DataIn(Occupied_Width_values[7]), .DataOut(Occupied_Width[7]), .rst(rst_i), .clk(clk_i));	
+    P1_Reg_8_bit Strip9_Reg(.DataIn(Occupied_Width_values[8]), .DataOut(Occupied_Width[8]), .rst(rst_i), .clk(clk_i));	
+    P1_Reg_8_bit Strip10_Reg(.DataIn(Occupied_Width_values[9]), .DataOut(Occupied_Width[9]), .rst(rst_i), .clk(clk_i));	
+    P1_Reg_8_bit Strip11_Reg(.DataIn(Occupied_Width_values[10]), .DataOut(Occupied_Width[10]), .rst(rst_i), .clk(clk_i));	
+    P1_Reg_8_bit Strip12_Reg(.DataIn(Occupied_Width_values[11]), .DataOut(Occupied_Width[11]), .rst(rst_i), .clk(clk_i));	
+    P1_Reg_8_bit Strip13_Reg(.DataIn(Occupied_Width_values[12]), .DataOut(Occupied_Width[12]), .rst(rst_i), .clk(clk_i));	
 
 
 always @ (posedge clk_div_4) begin
 	    // Updating Strip Occupancy and determining placements
 	if(rst_i) begin
   	    for (i = 0; i < 13; i = i+1) begin
-                Occupied_Width_values[i] <= 8'b00000000;
+                Occupied_Width_values[i] <= 0;
             end
         end
 	else begin
@@ -350,4 +369,5 @@ always @ (posedge clk_div_4) begin
 	width_int2 = width_int;
 
     end
+
 endmodule
