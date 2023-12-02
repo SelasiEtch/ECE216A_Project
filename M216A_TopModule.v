@@ -1,3 +1,4 @@
+
 `timescale 1ns / 100ps
 //Updated
 
@@ -77,7 +78,8 @@ reg [1:0] clk_counter;
 reg clk_div_4 = 1'b0;
 reg clk_div_2 = 1'b0;
 reg [3:0] strike;
-reg [7:0] index_x, index_y;
+reg [7:0] index_x = 7'b0000000;
+reg [7:0] index_y = 7'b0000000;
 reg [7:0] Occupied_Width_values [12:0];
 
 
@@ -109,31 +111,20 @@ reg [7:0] Strip10_X = 0;
 reg [7:0] Strip11_X = 0;
 reg [7:0] Strip12_X = 0;
 
-wire [4:0] height_int = 4'b0000;
-reg [4:0] height_int2 = 4'b0000;
-wire [4:0] width_int = 4'b0000;
-reg [4:0] width_int2 = 4'b0000;
+reg [4:0] height_in = 4'b0000;
+reg [4:0] width_in = 4'b0000;
+reg [4:0] height_in_0 = 4'b0000;
+reg [4:0] width_in_0 = 4'b0000;
 
 
 integer i;
 
 reg [4:0] Strip_index;
-
-
-// Dividing Input Clock by 4 (operations for placement happen every 4 cycles of the input clock)
-/*
-always @ (posedge clk_i) begin
-    height_int <= height_i;
-    width_int <= width_i;
-    clk_counter <= clk_counter + 1;
-    if (clk_counter == 2'b11) begin
-        clk_div_4 <= ~ clk_div_4;
-        clk_counter <= 2'b00;
-    end
-end
-*/
+reg [7:0] Strip_y_temp; 
 
 always @(posedge clk_i) begin
+	height_in_0 <=  height_i;
+	width_in_0 <= width_i;
 	clk_div_2 = ~clk_div_2;
 end
 
@@ -141,19 +132,17 @@ always @(posedge clk_div_2) begin
 	clk_div_4 = ~clk_div_4;
 end
 
-always@(posedge clk_div_4) begin
-	height_int2 <=  height_i;
-	width_int2 <= width_i;
-end
 
 
 initial begin
     strike = 4'b0000;
+    clk_div_2 = 1'b0;
+    clk_div_4 = 1'b0;
 end
 
 
-    P1_Reg_5_bit Height_Reg(.DataIn(height_i), .DataOut(height_int), .rst(rst_i), .clk(clk_i));				
-    P1_Reg_5_bit Width_Reg(.DataIn(width_i), .DataOut(width_int), .rst(rst_i), .clk(clk_i));				
+    P1_Reg_5_bit Height_Reg(.DataIn(height_i), .DataOut(height_int2), .rst(rst_i), .clk(clk_i));				
+    P1_Reg_5_bit Width_Reg(.DataIn(width_i), .DataOut(width_int2), .rst(rst_i), .clk(clk_i));				
     P1_Reg_4_bit Strike_Reg(.DataIn(strike), .DataOut(strike_o), .rst(rst_i), .clk(clk_i));			
     P1_Reg_8_bit Index_X_Reg(.DataIn(index_x), .DataOut(index_x_o), .rst(rst_i), .clk(clk_i));			
     P1_Reg_8_bit Index_Y_Reg(.DataIn(index_y), .DataOut(index_y_o), .rst(rst_i), .clk(clk_i));			
@@ -172,199 +161,151 @@ end
     P1_Reg_8_bit Strip13_Reg(.DataIn(Occupied_Width_values[12]), .DataOut(Occupied_Width[12]), .rst(rst_i), .clk(clk_i));	
 
 
+
 always @ (posedge clk_div_4) begin
 	    // Updating Strip Occupancy and determining placements
-	if(rst_i) begin
-  	    for (i = 0; i < 13; i = i+1) begin
-                Occupied_Width_values[i] <= 0;
-            end
-        end
+	if(rst_i)begin
+
+		Occupied_Width_values[0] <= 7'b00000000;
+		Occupied_Width_values[1] <= 7'b00000000;
+		Occupied_Width_values[2] <= 7'b00000000;
+		Occupied_Width_values[3] <= 7'b00000000;
+		Occupied_Width_values[4] <= 7'b00000000;
+		Occupied_Width_values[5] <= 7'b00000000;
+		Occupied_Width_values[6] <= 7'b00000000;
+		Occupied_Width_values[7] <= 7'b00000000;
+		Occupied_Width_values[8] <= 7'b00000000;
+		Occupied_Width_values[9] <= 7'b00000000;
+		Occupied_Width_values[10] <= 7'b00000000;
+		Occupied_Width_values[11] <= 7'b00000000;
+		Occupied_Width_values[12] <= 7'b00000000;
+	end
+
 	else begin
-	    case (height_int2)
-	        4'd4:
-            	    begin
-			if(Occupied_Width_values[1] <= Occupied_Width_values[3]) begin
-			Strip_index = 1;
-			index_y = Strip1_Y;
-			end
 
-			else begin
-			Strip_index = 3;
-			index_y = Strip3_Y;
-	            	end
-		    end
-	        4'd5:
-            	    begin
-			if(Occupied_Width_values[3] <= Occupied_Width_values[5]) begin
-			Strip_index = 3;
-			index_y = Strip3_Y;
-			end
+case (height_in)
+    8: begin
+        if (Occupied_Width_values[8] <= Occupied_Width_values[9] && Occupied_Width_values[8] <= Occupied_Width_values[6]) begin
+            Strip_index = 8;
+            Strip_y_temp = 64;
+        end else if (Occupied_Width_values[9] <= Occupied_Width_values[6]) begin
+            Strip_index = 9;
+            Strip_y_temp = 72;
+        end else begin
+            Strip_index = 6;
+            Strip_y_temp = 48;
+        end
+    end
 
-			else begin
-			Strip_index = 5;
-			index_y = Strip5_Y;
-	            	end
-		    end
-	        4'd6:
-            	    begin
-			if(Occupied_Width_values[5] <= Occupied_Width_values[7]) begin
-			Strip_index = 5;
-			index_y = Strip5_Y;
-			end
+    7: begin
+        if (Occupied_Width_values[7] <= Occupied_Width_values[8] && Occupied_Width_values[7] <= Occupied_Width_values[9]) begin
+            Strip_index = 7;
+            Strip_y_temp = 57;
+        end else if (Occupied_Width_values[8] <= Occupied_Width_values[9]) begin
+            Strip_index = 8;
+            Strip_y_temp = 64;
+        end else begin
+            Strip_index = 9;
+            Strip_y_temp = 72;
+        end
+    end
 
-			else begin
-			Strip_index = 7;
-			index_y = Strip7_Y;
-	            	end
-		    end
-	        4'd7:
-	            begin
-			if(Occupied_Width_values[7] <= Occupied_Width_values[8] && Occupied_Width_values[7] <= Occupied_Width_values[9]) begin
-			Strip_index = 7;
-			index_y = Strip7_Y;
-			end
+    6: begin
+        if (Occupied_Width_values[5] <= Occupied_Width_values[7]) begin
+            Strip_index = 5;
+            Strip_y_temp = 42;
+        end else begin
+            Strip_index = 7;
+            Strip_y_temp = 57;
+        end
+    end
 
-			else if(Occupied_Width_values[8] <= Occupied_Width_values[9]) begin
-			Strip_index = 8;
-			index_y = Strip8_Y;
-			end
-			
-			else begin
-			Strip_index = 9;
-			index_y = Strip9_Y;
-	            	end
-		    end
-	        4'd8:
-	            begin
-			if(Occupied_Width_values[8] <= Occupied_Width_values[9] && Occupied_Width_values[8] <= Occupied_Width_values[6]) begin
-			Strip_index = 8;
-			index_y = Strip8_Y;
-			end
+    5: begin
+        if (Occupied_Width_values[3] <= Occupied_Width_values[5]) begin
+            Strip_index = 3;
+            Strip_y_temp = 27;
+        end else begin
+            Strip_index = 5;
+            Strip_y_temp = 42;
+        end
+    end
 
-			else if(Occupied_Width_values[9] <= Occupied_Width_values[6]) begin
-			Strip_index = 9;
-			index_y = Strip9_Y;
-			end
-			
-			else begin
-			Strip_index = 6;
-			index_y = Strip6_Y;
-	            	end
-		    end
-	        4'd9:
-            	    begin
-			if(Occupied_Width_values[6] <= Occupied_Width_values[4]) begin
-			Strip_index = 6;
-			index_y = Strip6_Y;
-			end
+    4: begin
+        if (Occupied_Width_values[1] <= Occupied_Width_values[3]) begin
+            Strip_index = 1;
+            Strip_y_temp = 12;
+        end else begin
+            Strip_index = 3;
+            Strip_y_temp = 27;
+        end
+    end
 
-			else begin
-			Strip_index = 4;
-			index_y = Strip4_Y;
-	            	end
-		    end
-	        4'd10:
-            	    begin
-			if(Occupied_Width_values[4] <= Occupied_Width_values[2]) begin
-			Strip_index = 4;
-			index_y = Strip4_Y;
-			end
+    12: begin
+        Strip_index = 0;
+        Strip_y_temp = 0;
+    end
 
-			else begin
-			Strip_index = 2;
-			index_y = Strip2_Y;
-	            	end
-		    end
-	        4'd11:
-            	    begin
-			if(Occupied_Width_values[2] <= Occupied_Width_values[0]) begin
-			Strip_index = 2;
-			index_y = Strip2_Y;
-			end
+    11: begin
+        if (Occupied_Width_values[2] <= Occupied_Width_values[0]) begin
+            Strip_index = 2;
+            Strip_y_temp = 16;
+        end else begin
+            Strip_index = 0;
+            Strip_y_temp = 0;
+        end
+    end
 
-			else begin
-			Strip_index = 0;
-			index_y = Strip0_Y;
-	            	end
-		    end
-	        4'd12:
-            	    begin
-			Strip_index = 0;
-			index_y = Strip0_Y;
-		    end
-	        4'd13:
-		    begin
-                	if (Occupied_Width_values[10] <= Occupied_Width_values[11] && Occupied_Width_values[10] <= Occupied_Width_values[12]) begin
-                    	    Strip_index = 10;
-                    	    index_y = Strip10_Y;
-                	end
-                	else if (Occupied_Width_values[11] <= Occupied_Width_values[12]) begin
-                    	    Strip_index = 11;
-                    	    index_y = Strip11_Y;
-                	end
-                	else begin
-                    	    Strip_index = 12;
-                    	    index_y = Strip12_Y;
-                	end
-        	    end
-	        4'd14:
-		    begin
-                	if (Occupied_Width_values[10] <= Occupied_Width_values[11] && Occupied_Width_values[10] <= Occupied_Width_values[12]) begin
-                    	    Strip_index = 10;
-                    	    index_y = Strip10_Y;
-                	end
-                	else if (Occupied_Width_values[11] <= Occupied_Width_values[12]) begin
-                    	    Strip_index = 11;
-                    	    index_y = Strip11_Y;
-                	end
-                	else begin
-                    	    Strip_index = 12;
-                    	    index_y = Strip12_Y;
-                	end
-        	    end
-	        4'd15:
-		    begin
-                	if (Occupied_Width_values[10] <= Occupied_Width_values[11] && Occupied_Width_values[10] <= Occupied_Width_values[12]) begin
-                    	    Strip_index = 10;
-                    	    index_y = Strip10_Y;
-                	end
-                	else if (Occupied_Width_values[11] <= Occupied_Width_values[12]) begin
-                    	    Strip_index = 11;
-                    	    index_y = Strip11_Y;
-                	end
-                	else begin
-                    	    Strip_index = 12;
-                    	    index_y = Strip12_Y;
-                	end
-        	    end
-	        4'd16:
-		    begin
-                	if (Occupied_Width_values[10] <= Occupied_Width_values[11] && Occupied_Width_values[10] <= Occupied_Width_values[12]) begin
-                    	    Strip_index = 10;
-                    	    index_y = Strip10_Y;
-                	end
-                	else if (Occupied_Width_values[11] <= Occupied_Width_values[12]) begin
-                    	    Strip_index = 11;
-                    	    index_y = Strip11_Y;
-                	end
-                	else begin
-                    	    Strip_index = 12;
-                    	    index_y = Strip12_Y;
-                	end
-        	    end
-	    endcase
+    10: begin
+        if (Occupied_Width_values[4] <= Occupied_Width_values[2]) begin
+            Strip_index = 4;
+            Strip_y_temp = 32;
+        end else begin
+            Strip_index = 2;
+            Strip_y_temp = 16;
+        end
+    end
 
-      	    if(Occupied_Width_values[Strip_index] + width_i > 128) begin
+    9: begin
+        if (Occupied_Width_values[6] <= Occupied_Width_values[4]) begin
+            Strip_index = 6;
+            Strip_y_temp = 48;
+        end else begin
+            Strip_index = 4;
+            Strip_y_temp = 32;
+        end
+    end
+
+    default: begin
+                if (Occupied_Width_values[10] <= Occupied_Width_values[11] && Occupied_Width_values[10] <= Occupied_Width_values[12]) begin
+                    Strip_index = 10;
+                    Strip_y_temp = 80;
+                    //We now know that ID 10 is the emptiest one
+                end
+                else if (Occupied_Width_values[11] <= Occupied_Width_values[12]) begin
+                    Strip_index = 11;
+                    Strip_y_temp = 96;
+                    //We now know that ID 11 is the emptiest one
+                end
+                else begin
+                    Strip_index = 12;
+                    Strip_y_temp = 112;
+                    //We now know that ID 12 is the emptiest one
+                end
+    end
+endcase
+      	    if(Occupied_Width_values[Strip_index] + width_in > 128) begin
             	strike = strike +1;
             	index_x = 128;
             	index_y = 128;
             end
       	    else begin
                 index_x = Occupied_Width_values[Strip_index]; 
-                Occupied_Width_values[Strip_index] = Occupied_Width_values[Strip_index]+width_i;
+		index_y = Strip_y_temp;
+                Occupied_Width_values[Strip_index] = Occupied_Width_values[Strip_index]+width_in;
             end
-
 	end
-    end
+	height_in = height_in_0;
+	width_in = width_in_0;
 
+    end
 endmodule
