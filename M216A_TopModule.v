@@ -160,25 +160,12 @@ end
     P1_Reg_8_bit Strip12_Reg(.DataIn(Occupied_Width_values[11]), .DataOut(Occupied_Width[11]), .rst(rst_i), .clk(clk_i));	
     P1_Reg_8_bit Strip13_Reg(.DataIn(Occupied_Width_values[12]), .DataOut(Occupied_Width[12]), .rst(rst_i), .clk(clk_i));	
 
-
-
 always @ (posedge clk_div_4) begin
 	    // Updating Strip Occupancy and determining placements
 	if(rst_i)begin
-
-		Occupied_Width_values[0] <= 7'b00000000;
-		Occupied_Width_values[1] <= 7'b00000000;
-		Occupied_Width_values[2] <= 7'b00000000;
-		Occupied_Width_values[3] <= 7'b00000000;
-		Occupied_Width_values[4] <= 7'b00000000;
-		Occupied_Width_values[5] <= 7'b00000000;
-		Occupied_Width_values[6] <= 7'b00000000;
-		Occupied_Width_values[7] <= 7'b00000000;
-		Occupied_Width_values[8] <= 7'b00000000;
-		Occupied_Width_values[9] <= 7'b00000000;
-		Occupied_Width_values[10] <= 7'b00000000;
-		Occupied_Width_values[11] <= 7'b00000000;
-		Occupied_Width_values[12] <= 7'b00000000;
+	    for (i = 0; i < 13; i = i+1) begin
+                Occupied_Width_values[i] <= 8'b00000000;
+        end
 	end
 
 	else begin
@@ -187,108 +174,108 @@ case (height_in)
     8: begin
         if (Occupied_Width_values[8] <= Occupied_Width_values[9] && Occupied_Width_values[8] <= Occupied_Width_values[6]) begin
             Strip_index = 8;
-            Strip_y_temp = 64;
+            Strip_y_temp = Strip8_Y;
         end else if (Occupied_Width_values[9] <= Occupied_Width_values[6]) begin
             Strip_index = 9;
-            Strip_y_temp = 72;
+            Strip_y_temp = Strip9_Y;
         end else begin
             Strip_index = 6;
-            Strip_y_temp = 48;
+            Strip_y_temp = Strip6_Y;
         end
     end
 
     7: begin
         if (Occupied_Width_values[7] <= Occupied_Width_values[8] && Occupied_Width_values[7] <= Occupied_Width_values[9]) begin
             Strip_index = 7;
-            Strip_y_temp = 57;
+            Strip_y_temp = Strip7_Y;
         end else if (Occupied_Width_values[8] <= Occupied_Width_values[9]) begin
             Strip_index = 8;
-            Strip_y_temp = 64;
+            Strip_y_temp = Strip8_Y;
         end else begin
             Strip_index = 9;
-            Strip_y_temp = 72;
+            Strip_y_temp = Strip9_Y;
         end
     end
 
     6: begin
         if (Occupied_Width_values[5] <= Occupied_Width_values[7]) begin
             Strip_index = 5;
-            Strip_y_temp = 42;
+            Strip_y_temp = Strip5_Y;
         end else begin
             Strip_index = 7;
-            Strip_y_temp = 57;
+            Strip_y_temp = Strip7_Y;
         end
     end
 
     5: begin
         if (Occupied_Width_values[3] <= Occupied_Width_values[5]) begin
             Strip_index = 3;
-            Strip_y_temp = 27;
+            Strip_y_temp = Strip3_Y;
         end else begin
             Strip_index = 5;
-            Strip_y_temp = 42;
+            Strip_y_temp = Strip5_Y;
         end
     end
 
     4: begin
         if (Occupied_Width_values[1] <= Occupied_Width_values[3]) begin
             Strip_index = 1;
-            Strip_y_temp = 12;
+            Strip_y_temp = Strip1_Y;
         end else begin
             Strip_index = 3;
-            Strip_y_temp = 27;
+            Strip_y_temp = Strip3_Y;
         end
     end
 
     12: begin
         Strip_index = 0;
-        Strip_y_temp = 0;
+        Strip_y_temp = Strip12_Y;
     end
 
     11: begin
         if (Occupied_Width_values[2] <= Occupied_Width_values[0]) begin
             Strip_index = 2;
-            Strip_y_temp = 16;
+            Strip_y_temp = Strip2_Y;
         end else begin
             Strip_index = 0;
-            Strip_y_temp = 0;
+            Strip_y_temp = Strip0_Y;
         end
     end
 
     10: begin
         if (Occupied_Width_values[4] <= Occupied_Width_values[2]) begin
             Strip_index = 4;
-            Strip_y_temp = 32;
+            Strip_y_temp = Strip4_Y;
         end else begin
             Strip_index = 2;
-            Strip_y_temp = 16;
+            Strip_y_temp = Strip2_Y;
         end
     end
 
     9: begin
         if (Occupied_Width_values[6] <= Occupied_Width_values[4]) begin
             Strip_index = 6;
-            Strip_y_temp = 48;
+            Strip_y_temp = Strip6_Y;
         end else begin
             Strip_index = 4;
-            Strip_y_temp = 32;
+            Strip_y_temp = Strip4_Y;
         end
     end
 
     default: begin
                 if (Occupied_Width_values[10] <= Occupied_Width_values[11] && Occupied_Width_values[10] <= Occupied_Width_values[12]) begin
                     Strip_index = 10;
-                    Strip_y_temp = 80;
+                    Strip_y_temp = Strip10_Y;
                     //We now know that ID 10 is the emptiest one
                 end
                 else if (Occupied_Width_values[11] <= Occupied_Width_values[12]) begin
                     Strip_index = 11;
-                    Strip_y_temp = 96;
+                    Strip_y_temp = Strip11_Y;
                     //We now know that ID 11 is the emptiest one
                 end
                 else begin
                     Strip_index = 12;
-                    Strip_y_temp = 112;
+                    Strip_y_temp = Strip12_Y;
                     //We now know that ID 12 is the emptiest one
                 end
     end
